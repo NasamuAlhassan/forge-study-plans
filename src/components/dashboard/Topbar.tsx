@@ -1,7 +1,24 @@
-import { Bell, Search, Sparkles } from "lucide-react";
+import { Bell, LogOut, Search, Sparkles } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function Topbar({ title, subtitle }: { title: string; subtitle?: string }) {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const initial = (user?.user_metadata?.display_name ?? user?.email ?? "?")
+    .toString()
+    .charAt(0)
+    .toUpperCase();
+
   return (
     <div className="sticky top-0 z-30 px-6 py-4 flex items-center justify-between gap-4 border-b border-white/5 bg-background/70 backdrop-blur-xl">
       <div className="min-w-0">
@@ -22,9 +39,25 @@ export function Topbar({ title, subtitle }: { title: string; subtitle?: string }
         <Button size="sm" className="bg-gradient-primary hover:opacity-90 shadow-glow">
           <Sparkles className="h-4 w-4 mr-1" /> Ask Forge
         </Button>
-        <div className="h-9 w-9 rounded-full bg-gradient-primary grid place-items-center text-sm font-semibold text-primary-foreground">
-          A
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="h-9 w-9 rounded-full bg-gradient-primary grid place-items-center text-sm font-semibold text-primary-foreground shadow-glow">
+              {initial}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel className="truncate">{user?.email}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={async () => {
+                await signOut();
+                navigate({ to: "/login" });
+              }}
+            >
+              <LogOut className="h-4 w-4 mr-2" /> Sign out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
