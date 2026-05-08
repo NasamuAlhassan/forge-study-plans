@@ -27,6 +27,27 @@ export function timeToMinutes(t: string): number {
   return (h || 0) * 60 + (m || 0);
 }
 
+export function minutesToTime(m: number): string {
+  return `${Math.floor(m / 60).toString().padStart(2, "0")}:${(m % 60).toString().padStart(2, "0")}`;
+}
+
+export function indexToDay(i: number): string {
+  return ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][i] ?? "Mon";
+}
+
+export async function updateEvent(
+  id: string,
+  patch: { title?: string; day_of_week?: number; start_minute?: number; end_minute?: number; notes?: string | null }
+) {
+  const { error } = await supabase.from("events").update(patch).eq("id", id);
+  if (error) throw error;
+}
+
+export async function deleteEvent(id: string) {
+  const { error } = await supabase.from("events").delete().eq("id", id);
+  if (error) throw error;
+}
+
 export function useSchedule() {
   const { user } = useAuth();
   const [subjects, setSubjects] = useState<Subject[]>([]);
