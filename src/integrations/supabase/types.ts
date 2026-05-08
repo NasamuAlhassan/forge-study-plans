@@ -14,7 +14,167 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      events: {
+        Row: {
+          created_at: string
+          day_of_week: number
+          end_minute: number
+          event_date: string | null
+          id: string
+          notes: string | null
+          start_minute: number
+          subject_id: string | null
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+          venue: string | null
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: number
+          end_minute: number
+          event_date?: string | null
+          id?: string
+          notes?: string | null
+          start_minute: number
+          subject_id?: string | null
+          title: string
+          type: string
+          updated_at?: string
+          user_id: string
+          venue?: string | null
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number
+          end_minute?: number
+          event_date?: string | null
+          id?: string
+          notes?: string | null
+          start_minute?: number
+          subject_id?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+          venue?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          major: string | null
+          study_preferences: Json | null
+          university: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          major?: string | null
+          study_preferences?: Json | null
+          university?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          major?: string | null
+          study_preferences?: Json | null
+          university?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      study_plans: {
+        Row: {
+          context: string | null
+          created_at: string
+          goal: string | null
+          id: string
+          plan: Json
+          rationale: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          context?: string | null
+          created_at?: string
+          goal?: string | null
+          id?: string
+          plan?: Json
+          rationale?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          context?: string | null
+          created_at?: string
+          goal?: string | null
+          id?: string
+          plan?: Json
+          rationale?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subjects: {
+        Row: {
+          code: string | null
+          color: string
+          created_at: string
+          credit_hours: number | null
+          id: string
+          instructor: string | null
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          code?: string | null
+          color?: string
+          created_at?: string
+          credit_hours?: number | null
+          id?: string
+          instructor?: string | null
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          code?: string | null
+          color?: string
+          created_at?: string
+          credit_hours?: number | null
+          id?: string
+          instructor?: string | null
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
