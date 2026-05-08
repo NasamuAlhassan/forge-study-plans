@@ -20,10 +20,10 @@ export function Navbar() {
         </nav>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" className="hidden sm:inline-flex" asChild>
-            <Link to="/dashboard">Sign in</Link>
+            <Link to="/login">Sign in</Link>
           </Button>
           <Button size="sm" className="bg-gradient-primary hover:opacity-90 shadow-glow" asChild>
-            <Link to="/dashboard">Open dashboard</Link>
+            <Link to="/login">Get started</Link>
           </Button>
         </div>
       </div>
