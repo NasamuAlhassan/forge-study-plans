@@ -73,6 +73,7 @@ export function WeekCalendar({
                 return (
                   <div
                     key={e.id}
+                    onClick={() => onEventClick?.(e)}
                     style={{ top, height }}
                     className={cn(
                       "absolute left-1 right-1 rounded-lg p-2 text-[11px] text-white overflow-hidden cursor-pointer transition-transform hover:-translate-y-0.5 hover:scale-[1.02]",
