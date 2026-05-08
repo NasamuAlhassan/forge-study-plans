@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Brain, Loader2, Sparkles, Wand2, CalendarPlus } from "lucide-react";
+import { Brain, Loader2, Sparkles, Wand2, CalendarPlus, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { generateStudyPlan } from "@/lib/ai.functions";
 import { toast } from "sonner";
@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useSchedule, persistStudySessions } from "@/hooks/use-schedule";
 import { supabase } from "@/integrations/supabase/client";
+import { SessionEditDialog, type EditableSession } from "@/components/dashboard/SessionEditDialog";
 
 type Session = {
   day: string;
@@ -36,6 +37,7 @@ export function StudyPlanGenerator() {
   const [saving, setSaving] = useState(false);
   const [rationale, setRationale] = useState<string>("");
   const [sessions, setSessions] = useState<Session[]>([]);
+  const [editIdx, setEditIdx] = useState<number | null>(null);
   const generate = useServerFn(generateStudyPlan);
   const { user } = useAuth();
   const { subjects, refetch } = useSchedule();
@@ -140,7 +142,7 @@ export function StudyPlanGenerator() {
             <div
               key={i}
               className={cn(
-                "p-3 rounded-xl bg-gradient-to-br border border-white/5",
+                "group relative p-3 rounded-xl bg-gradient-to-br border border-white/5",
                 intensityColor[s.intensity]
               )}
             >
@@ -151,10 +153,41 @@ export function StudyPlanGenerator() {
               <div className="mt-1 text-sm font-medium">{s.subject}</div>
               <div className="text-xs opacity-90">{s.focus}</div>
               <div className="mt-1 text-[10px] uppercase tracking-wider opacity-70">{s.intensity} focus</div>
+              <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button
+                  onClick={() => setEditIdx(i)}
+                  className="h-7 w-7 grid place-items-center rounded-md bg-black/30 hover:bg-black/50"
+                  aria-label="Edit session"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  onClick={() => setSessions((arr) => arr.filter((_, idx) => idx !== i))}
+                  className="h-7 w-7 grid place-items-center rounded-md bg-black/30 hover:bg-rose-500/40"
+                  aria-label="Remove session"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
             </div>
           ))}
         </div>
       </div>
+
+      <SessionEditDialog
+        open={editIdx !== null}
+        initial={editIdx !== null ? sessions[editIdx] : null}
+        title="Edit study session"
+        onClose={() => setEditIdx(null)}
+        onSave={(updated: EditableSession) => {
+          setSessions((arr) => arr.map((s, idx) => (idx === editIdx ? updated : s)));
+          toast.success("Session updated");
+        }}
+        onDelete={() => {
+          setSessions((arr) => arr.filter((_, idx) => idx !== editIdx));
+          toast.success("Session removed");
+        }}
+      />
     </div>
   );
 }
