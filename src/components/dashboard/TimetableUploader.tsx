@@ -43,6 +43,7 @@ export function TimetableUploader() {
     }
   };
 
+  const handleFile = useCallback(
     async (file: File) => {
       setError(null);
       setStatus("uploading");
