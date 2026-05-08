@@ -19,9 +19,11 @@ export function Navbar() {
           <a href="#faq" className="hover:text-foreground transition-colors">FAQ</a>
         </nav>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" className="hidden sm:inline-flex">Sign in</Button>
-          <Button size="sm" className="bg-gradient-primary hover:opacity-90 shadow-glow">
-            Get started
+          <Button variant="ghost" size="sm" className="hidden sm:inline-flex" asChild>
+            <Link to="/dashboard">Sign in</Link>
+          </Button>
+          <Button size="sm" className="bg-gradient-primary hover:opacity-90 shadow-glow" asChild>
+            <Link to="/dashboard">Open dashboard</Link>
           </Button>
         </div>
       </div>

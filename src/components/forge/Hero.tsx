@@ -1,4 +1,5 @@
 import { ArrowRight, Upload, Mic, Calendar } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import dashboardPreview from "@/assets/dashboard-preview.jpg";
 
@@ -27,12 +28,14 @@ export function Hero() {
         </p>
 
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3 animate-fade-up" style={{ animationDelay: "0.3s" }}>
-          <Button size="lg" className="bg-gradient-primary hover:opacity-90 shadow-glow">
-            Start forging — it's free
-            <ArrowRight className="ml-1 h-4 w-4" />
+          <Button size="lg" className="bg-gradient-primary hover:opacity-90 shadow-glow" asChild>
+            <Link to="/dashboard">
+              Start forging — it's free
+              <ArrowRight className="ml-1 h-4 w-4" />
+            </Link>
           </Button>
-          <Button size="lg" variant="outline" className="glass border-white/10">
-            Watch demo
+          <Button size="lg" variant="outline" className="glass border-white/10" asChild>
+            <Link to="/dashboard">Watch demo</Link>
           </Button>
         </div>
 
