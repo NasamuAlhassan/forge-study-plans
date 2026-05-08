@@ -184,8 +184,8 @@ export function TimetableUploader() {
           ))}
         </div>
         {entries.length > 0 && (
-          <Button className="mt-4 w-full bg-gradient-primary hover:opacity-90 shadow-glow">
-            Add to my calendar
+          <Button onClick={save} disabled={status === "saving"} className="mt-4 w-full bg-gradient-primary hover:opacity-90 shadow-glow">
+            {status === "saving" ? (<><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Saving…</>) : "Add to my calendar"}
           </Button>
         )}
       </div>
