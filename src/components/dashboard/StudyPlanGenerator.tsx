@@ -115,10 +115,15 @@ export function StudyPlanGenerator() {
       </div>
 
       <div className="ring-gradient glass rounded-2xl p-5">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <h3 className="text-base font-semibold">Generated sessions</h3>
           {sessions.length > 0 && (
-            <Button variant="ghost" size="sm" onClick={run}>Regenerate</Button>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={run}>Regenerate</Button>
+              <Button size="sm" onClick={saveToCalendar} disabled={saving} className="bg-gradient-primary hover:opacity-90 shadow-glow">
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <><CalendarPlus className="h-4 w-4 mr-1" /> Save to calendar</>}
+              </Button>
+            </div>
           )}
         </div>
         <div className="mt-4 space-y-2 max-h-[28rem] overflow-y-auto pr-1">
