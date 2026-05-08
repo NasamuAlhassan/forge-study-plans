@@ -1,4 +1,4 @@
-import { DAYS, EVENTS, subjectById, type EventBlock } from "@/lib/demo-data";
+import { DAYS, EVENTS, SUBJECTS, subjectById as demoSubjectById, type EventBlock, type Subject } from "@/lib/demo-data";
 import { cn } from "@/lib/utils";
 
 const HOURS = Array.from({ length: 14 }, (_, i) => i + 7); // 7..20
@@ -12,7 +12,16 @@ const typeStyle: Record<EventBlock["type"], string> = {
   exam: "bg-gradient-to-br from-rose-500 to-orange-500 shadow-glow",
 };
 
-export function WeekCalendar({ events = EVENTS }: { events?: EventBlock[] }) {
+export function WeekCalendar({
+  events = EVENTS,
+  subjects = SUBJECTS,
+}: {
+  events?: EventBlock[];
+  subjects?: Subject[];
+}) {
+  const subjectById = (id: string) =>
+    subjects.find((s) => s.id === id) ?? demoSubjectById(id) ?? subjects[0] ?? { id: "", name: "", code: "", color: "from-indigo-500 to-purple-500" };
+
   return (
     <div className="ring-gradient glass rounded-2xl overflow-hidden">
       {/* Header */}

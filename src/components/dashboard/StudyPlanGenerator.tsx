@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Brain, Loader2, Sparkles, Wand2 } from "lucide-react";
+import { Brain, Loader2, Sparkles, Wand2, CalendarPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { generateStudyPlan } from "@/lib/ai.functions";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
+import { useSchedule, persistStudySessions } from "@/hooks/use-schedule";
+import { supabase } from "@/integrations/supabase/client";
 
 type Session = {
   day: string;
@@ -30,9 +33,12 @@ Exam in 3 weeks: Calculus II.`;
 export function StudyPlanGenerator() {
   const [context, setContext] = useState(DEFAULT_CONTEXT);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [rationale, setRationale] = useState<string>("");
   const [sessions, setSessions] = useState<Session[]>([]);
   const generate = useServerFn(generateStudyPlan);
+  const { user } = useAuth();
+  const { subjects, refetch } = useSchedule();
 
   const run = async () => {
     setLoading(true);
@@ -45,6 +51,27 @@ export function StudyPlanGenerator() {
       toast.error(e instanceof Error ? e.message : "Generation failed");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const saveToCalendar = async () => {
+    if (!user) return toast.error("Please sign in first");
+    if (sessions.length === 0) return;
+    setSaving(true);
+    try {
+      await supabase.from("study_plans").insert({
+        user_id: user.id,
+        context,
+        rationale,
+        plan: { sessions } as never,
+      });
+      await persistStudySessions(user.id, sessions, subjects);
+      await refetch();
+      toast.success(`Added ${sessions.length} study sessions to your calendar`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to save");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -88,10 +115,15 @@ export function StudyPlanGenerator() {
       </div>
 
       <div className="ring-gradient glass rounded-2xl p-5">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <h3 className="text-base font-semibold">Generated sessions</h3>
           {sessions.length > 0 && (
-            <Button variant="ghost" size="sm" onClick={run}>Regenerate</Button>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={run}>Regenerate</Button>
+              <Button size="sm" onClick={saveToCalendar} disabled={saving} className="bg-gradient-primary hover:opacity-90 shadow-glow">
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <><CalendarPlus className="h-4 w-4 mr-1" /> Save to calendar</>}
+              </Button>
+            </div>
           )}
         </div>
         <div className="mt-4 space-y-2 max-h-[28rem] overflow-y-auto pr-1">
