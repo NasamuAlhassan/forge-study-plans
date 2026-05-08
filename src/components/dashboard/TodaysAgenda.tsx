@@ -1,23 +1,37 @@
 import { Clock, MapPin } from "lucide-react";
-import { EVENTS, subjectById } from "@/lib/demo-data";
+import { EVENTS, SUBJECTS, type EventBlock, type Subject } from "@/lib/demo-data";
 import { cn } from "@/lib/utils";
 
 const fmt = (m: number) => `${Math.floor(m / 60).toString().padStart(2, "0")}:${(m % 60).toString().padStart(2, "0")}`;
 
-export function TodaysAgenda() {
-  // Pretend "today" is Wed (day 2)
-  const today = EVENTS.filter((e) => e.day === 2).sort((a, b) => a.start - b.start);
+export function TodaysAgenda({
+  events = EVENTS,
+  subjects = SUBJECTS,
+}: {
+  events?: EventBlock[];
+  subjects?: Subject[];
+}) {
+  const todayIdx = (new Date().getDay() + 6) % 7; // JS Sun=0 -> Mon=0
+  const today = events.filter((e) => e.day === todayIdx).sort((a, b) => a.start - b.start);
+  const dayName = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"][todayIdx];
+  const subjectById = (id: string) =>
+    subjects.find((s) => s.id === id) ?? { id: "", name: "", code: "", color: "from-indigo-500 to-purple-500" };
 
   return (
     <div className="ring-gradient glass rounded-2xl p-5">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-base font-semibold">Today's agenda</h3>
-          <p className="text-xs text-muted-foreground">Wednesday · 4 blocks · 6h focus planned</p>
+          <p className="text-xs text-muted-foreground">{dayName} · {today.length} block{today.length === 1 ? "" : "s"}</p>
         </div>
         <span className="text-xs text-primary-glow">View week →</span>
       </div>
       <div className="mt-4 space-y-3">
+        {today.length === 0 && (
+          <div className="text-sm text-muted-foreground py-8 text-center border border-dashed border-white/10 rounded-xl">
+            Nothing scheduled today. Enjoy the breathing room.
+          </div>
+        )}
         {today.map((e) => {
           const s = subjectById(e.subjectId);
           return (
