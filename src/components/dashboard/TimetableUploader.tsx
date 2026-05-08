@@ -1,9 +1,12 @@
 import { useCallback, useRef, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Upload, Loader2, FileImage, CheckCircle2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { extractTimetable } from "@/lib/ai.functions";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/use-auth";
+import { persistTimetableEntries } from "@/hooks/use-schedule";
 
 type Entry = {
   course: string;
@@ -18,13 +21,28 @@ type Entry = {
 export function TimetableUploader() {
   const [dragOver, setDragOver] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
-  const [status, setStatus] = useState<"idle" | "uploading" | "extracting" | "done" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "uploading" | "extracting" | "done" | "error" | "saving">("idle");
   const [entries, setEntries] = useState<Entry[]>([]);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const extract = useServerFn(extractTimetable);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
-  const handleFile = useCallback(
+  const save = async () => {
+    if (!user) return toast.error("Please sign in first");
+    if (entries.length === 0) return;
+    setStatus("saving");
+    try {
+      await persistTimetableEntries(user.id, entries);
+      toast.success(`Added ${entries.length} class${entries.length === 1 ? "" : "es"} to your calendar`);
+      navigate({ to: "/dashboard/calendar" });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to save");
+      setStatus("done");
+    }
+  };
+
     async (file: File) => {
       setError(null);
       setStatus("uploading");
