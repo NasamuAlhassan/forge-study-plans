@@ -15,9 +15,11 @@ const typeStyle: Record<EventBlock["type"], string> = {
 export function WeekCalendar({
   events = EVENTS,
   subjects = SUBJECTS,
+  onEventClick,
 }: {
   events?: EventBlock[];
   subjects?: Subject[];
+  onEventClick?: (e: EventBlock) => void;
 }) {
   const subjectById = (id: string) =>
     subjects.find((s) => s.id === id) ?? demoSubjectById(id) ?? subjects[0] ?? { id: "", name: "", code: "", color: "from-indigo-500 to-purple-500" };
