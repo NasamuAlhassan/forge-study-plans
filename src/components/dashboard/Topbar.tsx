@@ -35,6 +35,9 @@ export function Topbar({ title, subtitle }: { title: string; subtitle?: string }
             className="bg-transparent outline-none flex-1 placeholder:text-muted-foreground/70"
           />
         </div>
+        <Button size="icon" variant="ghost" className="rounded-lg" onClick={toggle} aria-label="Toggle theme">
+          {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        </Button>
         <Button size="icon" variant="ghost" className="rounded-lg">
           <Bell className="h-4 w-4" />
         </Button>
