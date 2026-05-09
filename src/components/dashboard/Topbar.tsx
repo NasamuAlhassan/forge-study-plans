@@ -1,7 +1,8 @@
-import { Bell, LogOut, Search, Sparkles } from "lucide-react";
+import { Bell, LogOut, Moon, Search, Sparkles, Sun } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { useTheme } from "@/hooks/use-theme";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +14,7 @@ import {
 
 export function Topbar({ title, subtitle }: { title: string; subtitle?: string }) {
   const { user, signOut } = useAuth();
+  const { theme, toggle } = useTheme();
   const navigate = useNavigate();
   const initial = (user?.user_metadata?.display_name ?? user?.email ?? "?")
     .toString()
@@ -33,6 +35,9 @@ export function Topbar({ title, subtitle }: { title: string; subtitle?: string }
             className="bg-transparent outline-none flex-1 placeholder:text-muted-foreground/70"
           />
         </div>
+        <Button size="icon" variant="ghost" className="rounded-lg" onClick={toggle} aria-label="Toggle theme">
+          {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        </Button>
         <Button size="icon" variant="ghost" className="rounded-lg">
           <Bell className="h-4 w-4" />
         </Button>

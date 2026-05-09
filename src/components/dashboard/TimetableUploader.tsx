@@ -1,12 +1,53 @@
 import { useCallback, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Upload, Loader2, FileImage, CheckCircle2, AlertCircle } from "lucide-react";
+import { Upload, Loader2, FileImage, CheckCircle2, AlertCircle, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { extractTimetable } from "@/lib/ai.functions";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { persistTimetableEntries } from "@/hooks/use-schedule";
+
+async function pdfToImageDataUrl(file: File): Promise<string> {
+  const pdfjs: any = await import("pdfjs-dist");
+  pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjs.getDocument({ data: buf }).promise;
+  const pageCount = Math.min(pdf.numPages, 3);
+
+  // Render first N pages and stack them vertically into one canvas
+  const pages = [];
+  let totalHeight = 0;
+  let maxWidth = 0;
+  for (let i = 1; i <= pageCount; i++) {
+    const page = await pdf.getPage(i);
+    const viewport = page.getViewport({ scale: 2 });
+    const canvas = document.createElement("canvas");
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Canvas not supported");
+    await page.render({ canvasContext: ctx, viewport, canvas }).promise;
+    pages.push(canvas);
+    totalHeight += canvas.height;
+    if (canvas.width > maxWidth) maxWidth = canvas.width;
+  }
+
+  const composite = document.createElement("canvas");
+  composite.width = maxWidth;
+  composite.height = totalHeight;
+  const cctx = composite.getContext("2d");
+  if (!cctx) throw new Error("Canvas not supported");
+  cctx.fillStyle = "#ffffff";
+  cctx.fillRect(0, 0, composite.width, composite.height);
+  let y = 0;
+  for (const c of pages) {
+    cctx.drawImage(c, 0, y);
+    y += c.height;
+  }
+  return composite.toDataURL("image/jpeg", 0.85);
+}
 
 type Entry = {
   course: string;
@@ -43,30 +84,51 @@ export function TimetableUploader() {
     }
   };
 
+  const runExtract = useCallback(
+    async (dataUrl: string) => {
+      setStatus("extracting");
+      try {
+        const res = await extract({ data: { imageDataUrl: dataUrl } });
+        setEntries(res.entries);
+        setStatus("done");
+        toast.success(`Extracted ${res.entries.length} class${res.entries.length === 1 ? "" : "es"}`);
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "Extraction failed";
+        setError(msg);
+        setStatus("error");
+        toast.error(msg);
+      }
+    },
+    [extract]
+  );
+
   const handleFile = useCallback(
     async (file: File) => {
       setError(null);
       setStatus("uploading");
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const dataUrl = reader.result as string;
-        setPreview(dataUrl);
-        setStatus("extracting");
-        try {
-          const res = await extract({ data: { imageDataUrl: dataUrl } });
-          setEntries(res.entries);
-          setStatus("done");
-          toast.success(`Extracted ${res.entries.length} class${res.entries.length === 1 ? "" : "es"}`);
-        } catch (e) {
-          const msg = e instanceof Error ? e.message : "Extraction failed";
-          setError(msg);
-          setStatus("error");
-          toast.error(msg);
+      const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+      try {
+        if (isPdf) {
+          const dataUrl = await pdfToImageDataUrl(file);
+          setPreview(dataUrl);
+          await runExtract(dataUrl);
+        } else {
+          const reader = new FileReader();
+          reader.onload = async () => {
+            const dataUrl = reader.result as string;
+            setPreview(dataUrl);
+            await runExtract(dataUrl);
+          };
+          reader.readAsDataURL(file);
         }
-      };
-      reader.readAsDataURL(file);
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "Couldn't read file";
+        setError(msg);
+        setStatus("error");
+        toast.error(msg);
+      }
     },
-    [extract]
+    [runExtract]
   );
 
   return (
@@ -94,7 +156,7 @@ export function TimetableUploader() {
             </div>
             <h3 className="mt-5 text-lg font-semibold">Drop your timetable</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              PNG, JPG, or screenshot. Forge will read every class in seconds.
+              PNG, JPG, or PDF. Forge will read every class in seconds.
             </p>
             <Button
               className="mt-6 bg-gradient-primary hover:opacity-90 shadow-glow"
@@ -102,10 +164,15 @@ export function TimetableUploader() {
             >
               <FileImage className="h-4 w-4 mr-1" /> Choose file
             </Button>
+            <div className="mt-3 flex items-center justify-center gap-2 text-[11px] text-muted-foreground">
+              <FileImage className="h-3 w-3" /> PNG / JPG
+              <span>·</span>
+              <FileText className="h-3 w-3" /> PDF
+            </div>
             <input
               ref={inputRef}
               type="file"
-              accept="image/*"
+              accept="image/*,application/pdf,.pdf"
               className="hidden"
               onChange={(e) => {
                 const f = e.target.files?.[0];
