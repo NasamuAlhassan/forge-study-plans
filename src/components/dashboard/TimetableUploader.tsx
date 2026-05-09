@@ -156,7 +156,7 @@ export function TimetableUploader() {
             </div>
             <h3 className="mt-5 text-lg font-semibold">Drop your timetable</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              PNG, JPG, or screenshot. Forge will read every class in seconds.
+              PNG, JPG, or PDF. Forge will read every class in seconds.
             </p>
             <Button
               className="mt-6 bg-gradient-primary hover:opacity-90 shadow-glow"
@@ -164,10 +164,15 @@ export function TimetableUploader() {
             >
               <FileImage className="h-4 w-4 mr-1" /> Choose file
             </Button>
+            <div className="mt-3 flex items-center justify-center gap-2 text-[11px] text-muted-foreground">
+              <FileImage className="h-3 w-3" /> PNG / JPG
+              <span>·</span>
+              <FileText className="h-3 w-3" /> PDF
+            </div>
             <input
               ref={inputRef}
               type="file"
-              accept="image/*"
+              accept="image/*,application/pdf,.pdf"
               className="hidden"
               onChange={(e) => {
                 const f = e.target.files?.[0];
