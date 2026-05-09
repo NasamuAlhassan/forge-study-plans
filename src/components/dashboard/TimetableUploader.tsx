@@ -9,10 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { persistTimetableEntries } from "@/hooks/use-schedule";
 
 async function pdfToImageDataUrl(file: File): Promise<string> {
-  // Dynamic import keeps pdfjs out of the initial bundle
-  const pdfjs = await import("pdfjs-dist");
-  // Use a CDN worker to avoid bundling worker file
-  // @ts-expect-error - GlobalWorkerOptions is a runtime field
+  const pdfjs: any = await import("pdfjs-dist");
   pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
   const buf = await file.arrayBuffer();
