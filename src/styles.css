@@ -115,6 +115,70 @@
   --sidebar-ring: oklch(0.62 0.21 285);
 }
 
+.light {
+  --background: oklch(0.985 0.005 280);
+  --foreground: oklch(0.20 0.04 275);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.20 0.04 275);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.20 0.04 275);
+
+  --primary: oklch(0.55 0.22 285);
+  --primary-foreground: oklch(0.99 0.005 280);
+  --primary-glow: oklch(0.62 0.22 290);
+
+  --secondary: oklch(0.95 0.02 280);
+  --secondary-foreground: oklch(0.25 0.04 275);
+
+  --muted: oklch(0.95 0.015 280);
+  --muted-foreground: oklch(0.45 0.03 280);
+
+  --accent: oklch(0.55 0.20 250);
+  --accent-foreground: oklch(0.99 0.005 280);
+
+  --destructive: oklch(0.58 0.24 27);
+  --destructive-foreground: oklch(0.99 0.005 280);
+
+  --border: oklch(0.88 0.02 280 / 0.8);
+  --input: oklch(0.92 0.015 280);
+  --ring: oklch(0.55 0.22 285);
+
+  --gradient-hero: radial-gradient(60% 80% at 50% 0%, oklch(0.78 0.18 290 / 0.35) 0%, transparent 70%),
+                   radial-gradient(40% 60% at 80% 30%, oklch(0.78 0.18 250 / 0.25) 0%, transparent 70%),
+                   linear-gradient(180deg, oklch(0.99 0.005 280) 0%, oklch(0.96 0.01 280) 100%);
+  --gradient-primary: linear-gradient(135deg, oklch(0.55 0.22 285), oklch(0.55 0.22 250));
+  --gradient-text: linear-gradient(135deg, oklch(0.35 0.15 290), oklch(0.50 0.20 285) 50%, oklch(0.50 0.20 250));
+  --gradient-border: linear-gradient(135deg, oklch(0.55 0.22 285 / 0.45), oklch(0.55 0.22 250 / 0.25));
+
+  --shadow-glow: 0 0 60px -10px oklch(0.55 0.22 285 / 0.30);
+  --shadow-card: 0 10px 40px -12px oklch(0.20 0.04 275 / 0.18);
+  --shadow-elegant: 0 20px 60px -20px oklch(0.55 0.22 285 / 0.25);
+
+  --sidebar: oklch(0.98 0.005 280);
+  --sidebar-foreground: oklch(0.25 0.04 275);
+  --sidebar-primary: oklch(0.55 0.22 285);
+  --sidebar-primary-foreground: oklch(0.99 0.005 280);
+  --sidebar-accent: oklch(0.95 0.015 280);
+  --sidebar-accent-foreground: oklch(0.25 0.04 275);
+  --sidebar-border: oklch(0.88 0.02 280 / 0.8);
+  --sidebar-ring: oklch(0.55 0.22 285);
+}
+
+.light .glass {
+  background: oklch(1 0 0 / 0.65) !important;
+  border: 1px solid oklch(0.20 0.04 275 / 0.08) !important;
+}
+.light .glass-strong {
+  background: oklch(1 0 0 / 0.85) !important;
+  border: 1px solid oklch(0.20 0.04 275 / 0.10) !important;
+}
+.light .grid-bg {
+  background-image:
+    linear-gradient(oklch(0.20 0.04 275 / 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.20 0.04 275 / 0.06) 1px, transparent 1px);
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
