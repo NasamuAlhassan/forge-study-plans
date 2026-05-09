@@ -14,6 +14,7 @@ import {
 
 export function Topbar({ title, subtitle }: { title: string; subtitle?: string }) {
   const { user, signOut } = useAuth();
+  const { theme, toggle } = useTheme();
   const navigate = useNavigate();
   const initial = (user?.user_metadata?.display_name ?? user?.email ?? "?")
     .toString()
