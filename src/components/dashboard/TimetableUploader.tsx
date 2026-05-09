@@ -84,30 +84,51 @@ export function TimetableUploader() {
     }
   };
 
+  const runExtract = useCallback(
+    async (dataUrl: string) => {
+      setStatus("extracting");
+      try {
+        const res = await extract({ data: { imageDataUrl: dataUrl } });
+        setEntries(res.entries);
+        setStatus("done");
+        toast.success(`Extracted ${res.entries.length} class${res.entries.length === 1 ? "" : "es"}`);
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "Extraction failed";
+        setError(msg);
+        setStatus("error");
+        toast.error(msg);
+      }
+    },
+    [extract]
+  );
+
   const handleFile = useCallback(
     async (file: File) => {
       setError(null);
       setStatus("uploading");
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const dataUrl = reader.result as string;
-        setPreview(dataUrl);
-        setStatus("extracting");
-        try {
-          const res = await extract({ data: { imageDataUrl: dataUrl } });
-          setEntries(res.entries);
-          setStatus("done");
-          toast.success(`Extracted ${res.entries.length} class${res.entries.length === 1 ? "" : "es"}`);
-        } catch (e) {
-          const msg = e instanceof Error ? e.message : "Extraction failed";
-          setError(msg);
-          setStatus("error");
-          toast.error(msg);
+      const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+      try {
+        if (isPdf) {
+          const dataUrl = await pdfToImageDataUrl(file);
+          setPreview(dataUrl);
+          await runExtract(dataUrl);
+        } else {
+          const reader = new FileReader();
+          reader.onload = async () => {
+            const dataUrl = reader.result as string;
+            setPreview(dataUrl);
+            await runExtract(dataUrl);
+          };
+          reader.readAsDataURL(file);
         }
-      };
-      reader.readAsDataURL(file);
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "Couldn't read file";
+        setError(msg);
+        setStatus("error");
+        toast.error(msg);
+      }
     },
-    [extract]
+    [runExtract]
   );
 
   return (
