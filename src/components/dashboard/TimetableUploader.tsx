@@ -1,12 +1,57 @@
 import { useCallback, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Upload, Loader2, FileImage, CheckCircle2, AlertCircle } from "lucide-react";
+import { Upload, Loader2, FileImage, CheckCircle2, AlertCircle, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { extractTimetable } from "@/lib/ai.functions";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { persistTimetableEntries } from "@/hooks/use-schedule";
+
+async function pdfToImageDataUrl(file: File): Promise<string> {
+  // Dynamic import keeps pdfjs out of the initial bundle
+  const pdfjs = await import("pdfjs-dist");
+  // Use a CDN worker to avoid bundling worker file
+  // @ts-expect-error - GlobalWorkerOptions is a runtime field
+  pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjs.getDocument({ data: buf }).promise;
+  const pageCount = Math.min(pdf.numPages, 3);
+
+  // Render first N pages and stack them vertically into one canvas
+  const pages = [];
+  let totalHeight = 0;
+  let maxWidth = 0;
+  for (let i = 1; i <= pageCount; i++) {
+    const page = await pdf.getPage(i);
+    const viewport = page.getViewport({ scale: 2 });
+    const canvas = document.createElement("canvas");
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Canvas not supported");
+    // @ts-expect-error - canvas param accepted by pdfjs at runtime
+    await page.render({ canvasContext: ctx, viewport, canvas }).promise;
+    pages.push(canvas);
+    totalHeight += canvas.height;
+    if (canvas.width > maxWidth) maxWidth = canvas.width;
+  }
+
+  const composite = document.createElement("canvas");
+  composite.width = maxWidth;
+  composite.height = totalHeight;
+  const cctx = composite.getContext("2d");
+  if (!cctx) throw new Error("Canvas not supported");
+  cctx.fillStyle = "#ffffff";
+  cctx.fillRect(0, 0, composite.width, composite.height);
+  let y = 0;
+  for (const c of pages) {
+    cctx.drawImage(c, 0, y);
+    y += c.height;
+  }
+  return composite.toDataURL("image/jpeg", 0.85);
+}
 
 type Entry = {
   course: string;
