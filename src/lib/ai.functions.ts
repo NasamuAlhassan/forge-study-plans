@@ -105,6 +105,70 @@ export const extractTimetable = createServerFn({ method: "POST" })
     };
   });
 
+export const extractTimetableFromText = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => ExtractTextInput.parse(d))
+  .handler(async ({ data }) => {
+    const result = await callLovableAI({
+      model: "google/gemini-2.5-flash",
+      messages: [
+        {
+          role: "system",
+          content:
+            "You parse spoken or written natural-language descriptions of class schedules into structured timetable entries. Use 24-hour times. Infer 1h end time if missing. Always call the tool.",
+        },
+        { role: "user", content: data.text },
+      ],
+      tools: [
+        {
+          type: "function",
+          function: {
+            name: "save_timetable",
+            description: "Save parsed timetable entries",
+            parameters: {
+              type: "object",
+              properties: {
+                entries: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      course: { type: "string" },
+                      code: { type: "string" },
+                      lecturer: { type: "string" },
+                      venue: { type: "string" },
+                      day: { type: "string", enum: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] },
+                      start: { type: "string", description: "HH:MM 24h" },
+                      end: { type: "string", description: "HH:MM 24h" },
+                    },
+                    required: ["course", "day", "start", "end"],
+                    additionalProperties: false,
+                  },
+                },
+              },
+              required: ["entries"],
+              additionalProperties: false,
+            },
+          },
+        },
+      ],
+      tool_choice: { type: "function", function: { name: "save_timetable" } },
+    });
+
+    const call = result?.choices?.[0]?.message?.tool_calls?.[0];
+    const args = call?.function?.arguments ? JSON.parse(call.function.arguments) : { entries: [] };
+    return args as {
+      entries: Array<{
+        course: string;
+        code?: string;
+        lecturer?: string;
+        venue?: string;
+        day: string;
+        start: string;
+        end: string;
+      }>;
+    };
+  });
+
 export const generateStudyPlan = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => PlanInput.parse(d))
   .handler(async ({ data }) => {
