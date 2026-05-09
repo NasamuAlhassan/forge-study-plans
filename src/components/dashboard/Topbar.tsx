@@ -1,7 +1,8 @@
-import { Bell, LogOut, Search, Sparkles } from "lucide-react";
+import { Bell, LogOut, Moon, Search, Sparkles, Sun } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { useTheme } from "@/hooks/use-theme";
 import {
   DropdownMenu,
   DropdownMenuContent,
