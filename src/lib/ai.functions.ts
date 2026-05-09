@@ -5,6 +5,10 @@ const ExtractInput = z.object({
   imageDataUrl: z.string().min(20),
 });
 
+const ExtractTextInput = z.object({
+  text: z.string().min(1).max(4000),
+});
+
 const PlanInput = z.object({
   context: z.string().min(1).max(4000),
 });
