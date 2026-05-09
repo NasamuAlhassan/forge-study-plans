@@ -28,7 +28,6 @@ async function pdfToImageDataUrl(file: File): Promise<string> {
     canvas.height = viewport.height;
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("Canvas not supported");
-    // @ts-expect-error - canvas param accepted by pdfjs at runtime
     await page.render({ canvasContext: ctx, viewport, canvas }).promise;
     pages.push(canvas);
     totalHeight += canvas.height;
