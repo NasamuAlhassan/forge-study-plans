@@ -42,10 +42,10 @@ export function Topbar({ title, subtitle }: { title: string; subtitle?: string }
         <Button size="icon" variant="ghost" className="rounded-lg" onClick={toggle} aria-label="Toggle theme">
           {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </Button>
-        <Button size="icon" variant="ghost" className="rounded-lg">
+        <Button size="icon" variant="ghost" className="hidden sm:inline-flex rounded-lg">
           <Bell className="h-4 w-4" />
         </Button>
-        <Button size="sm" className="bg-gradient-primary hover:opacity-90 shadow-glow">
+        <Button size="sm" className="hidden sm:inline-flex bg-gradient-primary hover:opacity-90 shadow-glow">
           <Sparkles className="h-4 w-4 mr-1" /> Ask Forge
         </Button>
         <DropdownMenu>
