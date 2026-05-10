@@ -12,7 +12,7 @@ export type EventBlock = {
   id: string;
   subjectId: string;
   title: string;
-  type: "class" | "study" | "break" | "exam";
+  type: "class" | "study" | "break" | "exam" | "sleep" | "free" | "task";
   day: number; // 0 Mon..6 Sun
   start: number; // minutes from 0:00
   end: number;

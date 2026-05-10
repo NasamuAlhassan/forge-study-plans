@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useTheme } from "@/hooks/use-theme";
+import { MobileNav } from "@/components/dashboard/MobileNav";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,12 +23,15 @@ export function Topbar({ title, subtitle }: { title: string; subtitle?: string }
     .toUpperCase();
 
   return (
-    <div className="sticky top-0 z-30 px-6 py-4 flex items-center justify-between gap-4 border-b border-white/5 bg-background/70 backdrop-blur-xl">
-      <div className="min-w-0">
-        <h1 className="font-display text-xl sm:text-2xl font-semibold truncate">{title}</h1>
-        {subtitle && <p className="text-sm text-muted-foreground truncate">{subtitle}</p>}
+    <div className="sticky top-0 z-30 px-4 sm:px-6 py-4 flex items-center justify-between gap-2 sm:gap-4 border-b border-white/5 bg-background/70 backdrop-blur-xl">
+      <div className="flex items-center gap-2 min-w-0">
+        <MobileNav />
+        <div className="min-w-0">
+          <h1 className="font-display text-lg sm:text-2xl font-semibold truncate">{title}</h1>
+          {subtitle && <p className="text-xs sm:text-sm text-muted-foreground truncate">{subtitle}</p>}
+        </div>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2">
         <div className="hidden md:flex items-center gap-2 glass rounded-lg px-3 py-1.5 text-sm text-muted-foreground w-72">
           <Search className="h-4 w-4" />
           <input
@@ -38,10 +42,10 @@ export function Topbar({ title, subtitle }: { title: string; subtitle?: string }
         <Button size="icon" variant="ghost" className="rounded-lg" onClick={toggle} aria-label="Toggle theme">
           {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </Button>
-        <Button size="icon" variant="ghost" className="rounded-lg">
+        <Button size="icon" variant="ghost" className="hidden sm:inline-flex rounded-lg">
           <Bell className="h-4 w-4" />
         </Button>
-        <Button size="sm" className="bg-gradient-primary hover:opacity-90 shadow-glow">
+        <Button size="sm" className="hidden sm:inline-flex bg-gradient-primary hover:opacity-90 shadow-glow">
           <Sparkles className="h-4 w-4 mr-1" /> Ask Forge
         </Button>
         <DropdownMenu>
