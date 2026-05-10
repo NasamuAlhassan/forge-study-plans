@@ -8,8 +8,11 @@ const DAY_START = 7 * 60;
 const typeStyle: Record<EventBlock["type"], string> = {
   class: "bg-gradient-to-br shadow-glow",
   study: "bg-gradient-to-br opacity-90",
-  break: "bg-muted/60",
+  break: "bg-muted/60 text-foreground",
   exam: "bg-gradient-to-br from-rose-500 to-orange-500 shadow-glow",
+  sleep: "bg-gradient-to-br from-slate-700 to-slate-900 opacity-80",
+  free: "bg-gradient-to-br from-emerald-500/40 to-teal-500/40",
+  task: "bg-gradient-to-br from-amber-500 to-orange-500 shadow-glow",
 };
 
 export function WeekCalendar({
@@ -26,6 +29,8 @@ export function WeekCalendar({
 
   return (
     <div className="ring-gradient glass rounded-2xl overflow-hidden">
+     <div className="overflow-x-auto">
+      <div className="min-w-[720px]">
       {/* Header */}
       <div className="grid grid-cols-[60px_repeat(7,1fr)] border-b border-white/5 bg-card/40">
         <div />
