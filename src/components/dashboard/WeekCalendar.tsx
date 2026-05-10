@@ -102,6 +102,8 @@ export function WeekCalendar({
           </div>
         ))}
       </div>
+      </div>
+     </div>
     </div>
   );
 }
