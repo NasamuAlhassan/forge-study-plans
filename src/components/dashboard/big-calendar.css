@@ -1,0 +1,47 @@
+/* Dark-mode theming for react-big-calendar to match Forge UI */
+.rbc-forge .rbc-calendar { background: transparent; color: var(--foreground); font-family: var(--font-sans); }
+.rbc-forge .rbc-toolbar { color: var(--foreground); padding: 8px 4px; gap: 8px; flex-wrap: wrap; }
+.rbc-forge .rbc-toolbar button {
+  color: var(--foreground);
+  background: color-mix(in oklab, var(--foreground) 6%, transparent);
+  border: 1px solid color-mix(in oklab, var(--foreground) 10%, transparent);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+.rbc-forge .rbc-toolbar button:hover,
+.rbc-forge .rbc-toolbar button.rbc-active {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: transparent;
+  box-shadow: 0 0 24px -4px var(--primary-glow, var(--primary));
+}
+.rbc-forge .rbc-toolbar-label { font-weight: 600; font-family: var(--font-display); }
+
+.rbc-forge .rbc-header,
+.rbc-forge .rbc-time-header-content,
+.rbc-forge .rbc-time-content,
+.rbc-forge .rbc-time-view,
+.rbc-forge .rbc-month-view,
+.rbc-forge .rbc-agenda-view {
+  border-color: color-mix(in oklab, var(--foreground) 10%, transparent);
+}
+.rbc-forge .rbc-header { padding: 6px 4px; font-size: 12px; color: var(--muted-foreground); border-bottom: 1px solid color-mix(in oklab, var(--foreground) 8%, transparent); }
+.rbc-forge .rbc-time-slot,
+.rbc-forge .rbc-day-bg + .rbc-day-bg,
+.rbc-forge .rbc-month-row + .rbc-month-row { border-color: color-mix(in oklab, var(--foreground) 6%, transparent); }
+.rbc-forge .rbc-timeslot-group { border-color: color-mix(in oklab, var(--foreground) 8%, transparent); }
+.rbc-forge .rbc-time-gutter, .rbc-forge .rbc-label { color: var(--muted-foreground); font-size: 10px; }
+
+.rbc-forge .rbc-today { background: color-mix(in oklab, var(--primary) 10%, transparent); }
+.rbc-forge .rbc-off-range-bg { background: color-mix(in oklab, var(--foreground) 3%, transparent); }
+.rbc-forge .rbc-off-range { color: color-mix(in oklab, var(--foreground) 35%, transparent); }
+.rbc-forge .rbc-current-time-indicator { background: var(--primary); height: 2px; }
+.rbc-forge .rbc-event { outline: none; }
+.rbc-forge .rbc-event.rbc-selected { box-shadow: 0 0 0 2px var(--primary) !important; }
+.rbc-forge .rbc-show-more { color: var(--primary-glow, var(--primary)); background: transparent; }
+.rbc-forge .rbc-agenda-table.table { color: var(--foreground); }
+.rbc-forge .rbc-agenda-empty { color: var(--muted-foreground); padding: 24px; text-align: center; }
+
+/* Drag & drop helpers */
+.rbc-forge .rbc-addons-dnd .rbc-addons-dnd-drag-preview { opacity: 0.85; }

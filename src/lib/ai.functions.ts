@@ -251,3 +251,96 @@ export const generateStudyPlan = createServerFn({ method: "POST" })
       }>;
     };
   });
+
+// ===== Conversational Ask Forge =====
+
+const ChatMessage = z.object({
+  role: z.enum(["user", "assistant"]),
+  content: z.string(),
+});
+
+const AskInput = z.object({
+  messages: z.array(ChatMessage).min(1).max(40),
+  schedule: z.array(z.object({
+    id: z.string(),
+    title: z.string(),
+    type: z.string(),
+    day: z.number(),
+    start: z.number(),
+    end: z.number(),
+    subject: z.string().optional(),
+  })).max(200),
+});
+
+export const askForge = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => AskInput.parse(d))
+  .handler(async ({ data }) => {
+    const dayName = (d: number) => ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][d] ?? "Mon";
+    const fmt = (m: number) => `${Math.floor(m / 60).toString().padStart(2, "0")}:${(m % 60).toString().padStart(2, "0")}`;
+    const scheduleSnapshot = data.schedule.length === 0
+      ? "(empty calendar)"
+      : data.schedule.map((s) => `- ${s.id} | ${dayName(s.day)} ${fmt(s.start)}-${fmt(s.end)} | ${s.type} | ${s.title}${s.subject ? ` (${s.subject})` : ""}`).join("\n");
+
+    const result = await callLovableAI({
+      model: "google/gemini-2.5-flash",
+      messages: [
+        {
+          role: "system",
+          content: `You are Forge, a friendly conversational study coach. The student can chat with you to reschedule, cancel, add, or move blocks on their weekly calendar. 
+
+CURRENT CALENDAR (id | day time | type | title):
+${scheduleSnapshot}
+
+GUIDELINES:
+- When the user wants to change anything (move, cancel, add, reschedule), call propose_schedule_changes with concrete operations referencing existing ids when applicable.
+- For purely conversational questions (advice, planning), reply with a short helpful message and DO NOT call the tool.
+- Always include a brief 'reply' summary explaining what you're proposing.
+- Times are 24h HH:MM. Days are Mon-Sun.
+- Never invent ids — only use ids from the snapshot for update/delete.`,
+        },
+        ...data.messages.map((m) => ({ role: m.role, content: m.content })),
+      ],
+      tools: [
+        {
+          type: "function",
+          function: {
+            name: "propose_schedule_changes",
+            description: "Propose a set of edits to the student's weekly calendar. The user will preview and confirm before anything saves.",
+            parameters: {
+              type: "object",
+              properties: {
+                reply: { type: "string", description: "Short message to the user explaining the proposal" },
+                operations: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      op: { type: "string", enum: ["add", "update", "delete"] },
+                      id: { type: "string", description: "Required for update/delete; omit for add" },
+                      day: { type: "string", enum: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] },
+                      start: { type: "string", description: "HH:MM 24h" },
+                      end: { type: "string", description: "HH:MM 24h" },
+                      type: { type: "string", enum: ["class", "study", "break", "sleep", "free", "task"] },
+                      title: { type: "string" },
+                    },
+                    required: ["op"],
+                    additionalProperties: false,
+                  },
+                },
+              },
+              required: ["reply", "operations"],
+              additionalProperties: false,
+            },
+          },
+        },
+      ],
+    });
+
+    const msg = result?.choices?.[0]?.message;
+    const call = msg?.tool_calls?.[0];
+    if (call?.function?.arguments) {
+      const args = JSON.parse(call.function.arguments);
+      return { reply: args.reply ?? "Here's what I propose:", operations: args.operations ?? [] };
+    }
+    return { reply: msg?.content ?? "I'm not sure how to help with that.", operations: [] };
+  });

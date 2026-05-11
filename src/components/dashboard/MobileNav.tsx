@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu, LayoutDashboard, CalendarRange, Brain, Upload, Mic, BarChart3, Sparkles } from "lucide-react";
+import { Menu, LayoutDashboard, CalendarRange, Brain, Upload, Mic, BarChart3, Sparkles, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
@@ -9,6 +9,7 @@ const items = [
   { to: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { to: "/dashboard/calendar", label: "Calendar", icon: CalendarRange },
   { to: "/dashboard/study-plan", label: "Study plan", icon: Brain },
+  { to: "/dashboard/ask", label: "Ask Forge", icon: MessageSquare },
   { to: "/dashboard/import", label: "Import timetable", icon: Upload },
   { to: "/dashboard/voice", label: "Voice scheduling", icon: Mic },
   { to: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },

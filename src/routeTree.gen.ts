@@ -17,6 +17,7 @@ import { Route as DashboardVoiceRouteImport } from './routes/dashboard.voice'
 import { Route as DashboardStudyPlanRouteImport } from './routes/dashboard.study-plan'
 import { Route as DashboardImportRouteImport } from './routes/dashboard.import'
 import { Route as DashboardCalendarRouteImport } from './routes/dashboard.calendar'
+import { Route as DashboardAskRouteImport } from './routes/dashboard.ask'
 import { Route as DashboardAnalyticsRouteImport } from './routes/dashboard.analytics'
 
 const LoginRoute = LoginRouteImport.update({
@@ -59,6 +60,11 @@ const DashboardCalendarRoute = DashboardCalendarRouteImport.update({
   path: '/calendar',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardAskRoute = DashboardAskRouteImport.update({
+  id: '/ask',
+  path: '/ask',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardAnalyticsRoute = DashboardAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
+  '/dashboard/ask': typeof DashboardAskRoute
   '/dashboard/calendar': typeof DashboardCalendarRoute
   '/dashboard/import': typeof DashboardImportRoute
   '/dashboard/study-plan': typeof DashboardStudyPlanRoute
@@ -80,6 +87,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
+  '/dashboard/ask': typeof DashboardAskRoute
   '/dashboard/calendar': typeof DashboardCalendarRoute
   '/dashboard/import': typeof DashboardImportRoute
   '/dashboard/study-plan': typeof DashboardStudyPlanRoute
@@ -92,6 +100,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
+  '/dashboard/ask': typeof DashboardAskRoute
   '/dashboard/calendar': typeof DashboardCalendarRoute
   '/dashboard/import': typeof DashboardImportRoute
   '/dashboard/study-plan': typeof DashboardStudyPlanRoute
@@ -105,6 +114,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/login'
     | '/dashboard/analytics'
+    | '/dashboard/ask'
     | '/dashboard/calendar'
     | '/dashboard/import'
     | '/dashboard/study-plan'
@@ -115,6 +125,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/dashboard/analytics'
+    | '/dashboard/ask'
     | '/dashboard/calendar'
     | '/dashboard/import'
     | '/dashboard/study-plan'
@@ -126,6 +137,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/login'
     | '/dashboard/analytics'
+    | '/dashboard/ask'
     | '/dashboard/calendar'
     | '/dashboard/import'
     | '/dashboard/study-plan'
@@ -197,6 +209,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardCalendarRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/ask': {
+      id: '/dashboard/ask'
+      path: '/ask'
+      fullPath: '/dashboard/ask'
+      preLoaderRoute: typeof DashboardAskRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/analytics': {
       id: '/dashboard/analytics'
       path: '/analytics'
@@ -209,6 +228,7 @@ declare module '@tanstack/react-router' {
 
 interface DashboardRouteChildren {
   DashboardAnalyticsRoute: typeof DashboardAnalyticsRoute
+  DashboardAskRoute: typeof DashboardAskRoute
   DashboardCalendarRoute: typeof DashboardCalendarRoute
   DashboardImportRoute: typeof DashboardImportRoute
   DashboardStudyPlanRoute: typeof DashboardStudyPlanRoute
@@ -218,6 +238,7 @@ interface DashboardRouteChildren {
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardAnalyticsRoute: DashboardAnalyticsRoute,
+  DashboardAskRoute: DashboardAskRoute,
   DashboardCalendarRoute: DashboardCalendarRoute,
   DashboardImportRoute: DashboardImportRoute,
   DashboardStudyPlanRoute: DashboardStudyPlanRoute,
