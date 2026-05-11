@@ -100,7 +100,10 @@ function AskPage() {
         if (op.op === "delete" && op.id) {
           await supabase.from("events").delete().eq("id", op.id);
         } else if (op.op === "update" && op.id) {
-          const patch: Record<string, unknown> = {};
+          const patch: {
+            day_of_week?: number; start_minute?: number; end_minute?: number;
+            type?: string; title?: string;
+          } = {};
           if (op.day) patch.day_of_week = dayToIndex(op.day);
           if (op.start) patch.start_minute = timeToMinutes(op.start);
           if (op.end) patch.end_minute = timeToMinutes(op.end);
