@@ -7,7 +7,7 @@ import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "./big-calendar.css";
 import type { EventBlock, Subject } from "@/lib/demo-data";
 
-const locales = { "en-US": undefined as unknown as Locale };
+const locales = { "en-US": {} as unknown };
 const localizer = dateFnsLocalizer({
   format,
   parse,
