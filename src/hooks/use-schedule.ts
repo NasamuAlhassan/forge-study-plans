@@ -48,6 +48,11 @@ export async function deleteEvent(id: string) {
   if (error) throw error;
 }
 
+export async function deleteAllEvents(userId: string) {
+  const { error } = await supabase.from("events").delete().eq("user_id", userId);
+  if (error) throw error;
+}
+
 export function useSchedule() {
   const { user } = useAuth();
   const [subjects, setSubjects] = useState<Subject[]>([]);

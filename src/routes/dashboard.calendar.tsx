@@ -2,27 +2,33 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Topbar } from "@/components/dashboard/Topbar";
-import { WeekCalendar } from "@/components/dashboard/WeekCalendar";
+import { BigCalendar, type BigCalendarChange } from "@/components/dashboard/BigCalendar";
 import { SessionEditDialog, type EditableSession } from "@/components/dashboard/SessionEditDialog";
+import { Button } from "@/components/ui/button";
+import { Trash2, AlertTriangle } from "lucide-react";
 import {
-  useSchedule,
-  updateEvent,
-  deleteEvent,
-  dayToIndex,
-  timeToMinutes,
-  minutesToTime,
-  indexToDay,
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  useSchedule, updateEvent, deleteEvent, dayToIndex,
+  timeToMinutes, minutesToTime, indexToDay, deleteAllEvents,
 } from "@/hooks/use-schedule";
+import { useAuth } from "@/hooks/use-auth";
 import type { EventBlock } from "@/lib/demo-data";
+import { EVENTS, SUBJECTS } from "@/lib/demo-data";
 
 export const Route = createFileRoute("/dashboard/calendar")({
   component: CalendarPage,
 });
 
 function CalendarPage() {
+  const { user } = useAuth();
   const { events, subjects, hasData, refetch } = useSchedule();
   const [editing, setEditing] = useState<EventBlock | null>(null);
-  const props = hasData ? { events, subjects } : {};
+
+  const displayEvents = hasData ? events : EVENTS;
+  const displaySubjects = hasData ? subjects : SUBJECTS;
 
   const intensityFromNotes = (n?: string | null): EditableSession["intensity"] =>
     n === "deep" || n === "moderate" || n === "light" ? n : "moderate";
@@ -38,16 +44,72 @@ function CalendarPage() {
       }
     : null;
 
+  const handleChange = async (c: BigCalendarChange) => {
+    if (!hasData) return toast.info("Sample data — import or generate a plan to enable edits");
+    try {
+      await updateEvent(c.eventId, {
+        day_of_week: c.day_of_week,
+        start_minute: c.start_minute,
+        end_minute: c.end_minute,
+      });
+      await refetch();
+      toast.success("Moved");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to move");
+    }
+  };
+
+  const handleResetAll = async () => {
+    if (!user) return;
+    try {
+      await deleteAllEvents(user.id);
+      await refetch();
+      toast.success("Calendar cleared");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to clear");
+    }
+  };
+
   return (
     <>
       <Topbar
         title="Calendar"
-        subtitle={hasData ? "Click any block to edit it." : "Sample week — import a timetable to see your own."}
+        subtitle={hasData ? "Drag blocks to reschedule. Click to edit." : "Sample week — import or generate a plan to use your own."}
       />
-      <main className="p-6">
-        <WeekCalendar
-          {...props}
-          onEventClick={(e) => hasData && setEditing(e)}
+      <main className="p-4 sm:p-6 space-y-4">
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          {hasData && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-rose-400 hover:text-rose-300">
+                  <Trash2 className="h-4 w-4 mr-1" /> Reset calendar
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-rose-400" /> Clear all events?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This permanently removes every block on your calendar. You can re-import your timetable or generate a new plan afterwards.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleResetAll} className="bg-rose-500 hover:bg-rose-600">
+                    Yes, clear everything
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+        </div>
+
+        <BigCalendar
+          events={displayEvents}
+          subjects={displaySubjects}
+          onChange={handleChange}
+          onSelectEvent={(e) => hasData && setEditing(e)}
         />
       </main>
 
