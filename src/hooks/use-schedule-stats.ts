@@ -39,17 +39,17 @@ export function useScheduleStats(events: EventBlock[], subjects: Subject[]) {
     const activeDays = perDay.filter((d) => d.h >= 1).length;
     const consistency = Math.round((activeDays / 7) * 100);
 
-    // Productivity trend (4 weeks, slight variance — last week is real total)
+    // Productivity trend — only "Now" is real; past weeks left at 0 until we track historical totals
     const trend = [
-      { w: "W-3", h: Math.max(0, totalStudyHours * 0.7) },
-      { w: "W-2", h: Math.max(0, totalStudyHours * 0.85) },
-      { w: "W-1", h: Math.max(0, totalStudyHours * 0.95) },
+      { w: "W-3", h: 0 },
+      { w: "W-2", h: 0 },
+      { w: "W-1", h: 0 },
       { w: "Now", h: totalStudyHours },
-    ].map((p) => ({ ...p, h: +p.h.toFixed(1) }));
+    ];
 
-    // Sessions completed estimate — assume 80% of past sessions, all of future ones pending
-    const completed = Math.floor(studyEvents.length * 0.82);
-    const missed = Math.max(0, studyEvents.length - completed - 2);
+    // Sessions completed — without a real session log we report 0 completed/missed
+    const completed = 0;
+    const missed = 0;
 
     // Today
     const todayIdx = (new Date().getDay() + 6) % 7;

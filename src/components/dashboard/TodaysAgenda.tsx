@@ -1,12 +1,13 @@
 import { Clock, MapPin } from "lucide-react";
-import { EVENTS, SUBJECTS, type EventBlock, type Subject } from "@/lib/demo-data";
+import { Link } from "@tanstack/react-router";
+import { type EventBlock, type Subject } from "@/lib/demo-data";
 import { cn } from "@/lib/utils";
 
 const fmt = (m: number) => `${Math.floor(m / 60).toString().padStart(2, "0")}:${(m % 60).toString().padStart(2, "0")}`;
 
 export function TodaysAgenda({
-  events = EVENTS,
-  subjects = SUBJECTS,
+  events = [],
+  subjects = [],
 }: {
   events?: EventBlock[];
   subjects?: Subject[];
@@ -24,7 +25,7 @@ export function TodaysAgenda({
           <h3 className="text-base font-semibold">Today's agenda</h3>
           <p className="text-xs text-muted-foreground">{dayName} · {today.length} block{today.length === 1 ? "" : "s"}</p>
         </div>
-        <span className="text-xs text-primary-glow">View week →</span>
+        <Link to="/dashboard/calendar" className="text-xs text-primary-glow hover:underline">View week →</Link>
       </div>
       <div className="mt-4 space-y-3">
         {today.length === 0 && (

@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { BarChart3 } from "lucide-react";
 import { Topbar } from "@/components/dashboard/Topbar";
 import { StatsGrid } from "@/components/dashboard/StatsGrid";
+import { EmptyState } from "@/components/dashboard/EmptyState";
 import { useSchedule } from "@/hooks/use-schedule";
 import { useScheduleStats } from "@/hooks/use-schedule-stats";
-import { EVENTS, SUBJECTS } from "@/lib/demo-data";
 import {
   Area, AreaChart, Bar, BarChart, CartesianGrid, Cell,
   Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
@@ -21,9 +22,15 @@ const PIE_COLORS = [
 
 function AnalyticsPage() {
   const { events, subjects, hasData } = useSchedule();
-  const dEvents = hasData ? events : EVENTS;
-  const dSubjects = hasData ? subjects : SUBJECTS;
-  const stats = useScheduleStats(dEvents, dSubjects);
+  const stats = useScheduleStats(events, subjects);
+
+  // Course placeholders: always show one card per subject, even with 0 hours
+  const subjectCards = subjects.length > 0
+    ? subjects.map((s) => {
+        const hit = stats.perSubject.find((p) => p.s === s.name);
+        return { s: s.name, h: hit?.h ?? 0 };
+      })
+    : stats.perSubject;
 
   const consistencyData = stats.perDay.map((d) => ({
     d: d.d, consistent: d.h >= 1 ? 1 : 0, hours: d.h,
@@ -41,6 +48,16 @@ function AnalyticsPage() {
       <main className="p-4 sm:p-6 space-y-6">
         <StatsGrid />
 
+        {!hasData && subjects.length === 0 && (
+          <EmptyState
+            icon={BarChart3}
+            title="No analytics yet"
+            description="Add your courses and start logging study sessions — your charts will fill in as you go."
+            ctaLabel="Add courses"
+            ctaTo="/dashboard/calendar"
+          />
+        )}
+
         <div className="grid lg:grid-cols-2 gap-6">
           <Panel title="Hours per day" subtitle="Combined classes + study">
             <ResponsiveContainer>
@@ -53,7 +70,7 @@ function AnalyticsPage() {
                 </defs>
                 <CartesianGrid stroke="oklch(1 0 0 / 0.06)" vertical={false} />
                 <XAxis dataKey="d" stroke="currentColor" fontSize={12} />
-                <YAxis stroke="currentColor" fontSize={12} />
+                <YAxis stroke="currentColor" fontSize={12} domain={[0, 'auto']} allowDataOverflow={false} />
                 <Tooltip contentStyle={tip} />
                 <Area type="monotone" dataKey="h" stroke="oklch(0.74 0.19 295)" strokeWidth={2} fill="url(#g1)" />
               </AreaChart>
@@ -61,15 +78,19 @@ function AnalyticsPage() {
           </Panel>
 
           <Panel title="Time per subject" subtitle={`${stats.totalStudyHours}h study total`}>
-            <ResponsiveContainer>
-              <PieChart>
-                <Pie data={stats.perSubject} dataKey="h" nameKey="s" innerRadius={50} outerRadius={90} paddingAngle={2}>
-                  {stats.perSubject.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
-                </Pie>
-                <Tooltip contentStyle={tip} />
-                <Legend wrapperStyle={{ fontSize: 11, color: "var(--muted-foreground)" }} />
-              </PieChart>
-            </ResponsiveContainer>
+            {subjectCards.length === 0 ? (
+              <EmptySmall text="No subjects yet" />
+            ) : (
+              <ResponsiveContainer>
+                <PieChart>
+                  <Pie data={subjectCards} dataKey="h" nameKey="s" innerRadius={50} outerRadius={90} paddingAngle={2}>
+                    {subjectCards.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+                  </Pie>
+                  <Tooltip contentStyle={tip} />
+                  <Legend wrapperStyle={{ fontSize: 11, color: "var(--muted-foreground)" }} />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
           </Panel>
 
           <Panel title="Productivity trend" subtitle="Last 4 weeks">
@@ -77,7 +98,7 @@ function AnalyticsPage() {
               <LineChart data={stats.trend}>
                 <CartesianGrid stroke="oklch(1 0 0 / 0.06)" vertical={false} />
                 <XAxis dataKey="w" stroke="currentColor" fontSize={12} />
-                <YAxis stroke="currentColor" fontSize={12} />
+                <YAxis stroke="currentColor" fontSize={12} domain={[0, 'auto']} allowDataOverflow={false} />
                 <Tooltip contentStyle={tip} />
                 <Line type="monotone" dataKey="h" stroke="oklch(0.78 0.16 215)" strokeWidth={3} dot={{ r: 4, fill: "oklch(0.78 0.16 215)" }} />
               </LineChart>
@@ -89,7 +110,7 @@ function AnalyticsPage() {
               <BarChart data={sessionData}>
                 <CartesianGrid stroke="oklch(1 0 0 / 0.06)" vertical={false} />
                 <XAxis dataKey="k" stroke="currentColor" fontSize={12} />
-                <YAxis stroke="currentColor" fontSize={12} />
+                <YAxis stroke="currentColor" fontSize={12} domain={[0, 'auto']} allowDataOverflow={false} />
                 <Tooltip contentStyle={tip} />
                 <Bar dataKey="v" radius={[8, 8, 0, 0]}>
                   {sessionData.map((d, i) => (
@@ -117,20 +138,28 @@ function AnalyticsPage() {
           </Panel>
 
           <Panel title="Subject hours (bar)" subtitle="Top 6 subjects by study time">
-            <ResponsiveContainer>
-              <BarChart data={stats.perSubject} layout="vertical">
-                <CartesianGrid stroke="oklch(1 0 0 / 0.06)" horizontal={false} />
-                <XAxis type="number" stroke="currentColor" fontSize={12} />
-                <YAxis dataKey="s" type="category" stroke="currentColor" fontSize={11} width={80} />
-                <Tooltip contentStyle={tip} />
-                <Bar dataKey="h" fill="oklch(0.62 0.21 285)" radius={[0, 8, 8, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            {subjectCards.length === 0 ? (
+              <EmptySmall text="Add courses to see this" />
+            ) : (
+              <ResponsiveContainer>
+                <BarChart data={subjectCards} layout="vertical">
+                  <CartesianGrid stroke="oklch(1 0 0 / 0.06)" horizontal={false} />
+                  <XAxis type="number" stroke="currentColor" fontSize={12} domain={[0, 'auto']} allowDataOverflow={false} />
+                  <YAxis dataKey="s" type="category" stroke="currentColor" fontSize={11} width={80} />
+                  <Tooltip contentStyle={tip} />
+                  <Bar dataKey="h" fill="oklch(0.62 0.21 285)" radius={[0, 8, 8, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </Panel>
         </div>
       </main>
     </>
   );
+}
+
+function EmptySmall({ text }: { text: string }) {
+  return <div className="h-full grid place-items-center text-sm text-muted-foreground">{text}</div>;
 }
 
 const tip = { background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, color: "var(--foreground)" };

@@ -1,22 +1,15 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ArrowUpRight, Brain, Clock, Flame, Target, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
+  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
+  Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
+import { useSchedule } from "@/hooks/use-schedule";
+import { useScheduleStats } from "@/hooks/use-schedule-stats";
+import { useStreak } from "@/hooks/use-streak";
 
 type Stat = {
   label: string;
@@ -33,104 +26,92 @@ type Stat = {
   };
 };
 
-const stats: Stat[] = [
-  {
-    label: "Study hours this week",
-    value: "18.5h",
-    delta: "+4.2h",
-    icon: Clock,
-    accent: "from-indigo-500 to-purple-500",
-    detail: {
-      headline: "You're 29% above your weekly average",
-      summary:
-        "Your strongest day was Thursday (4.1h). Mornings remain your most productive window — 62% of your hours happened before 1pm.",
-      insights: [
-        "Best focus block: Thu 9–11am (deep work, Calculus)",
-        "Lowest day: Sun (0.4h) — consider a light catch-up session",
-        "Recommended target next week: 20h with one rest day",
-      ],
-      seriesLabel: "Hours per day",
-      series: [
-        { d: "Mon", v: 2.5 }, { d: "Tue", v: 3.2 }, { d: "Wed", v: 1.8 },
-        { d: "Thu", v: 4.1 }, { d: "Fri", v: 2.9 }, { d: "Sat", v: 3.6 }, { d: "Sun", v: 0.4 },
-      ],
-    },
-  },
-  {
-    label: "Streak",
-    value: "12 days",
-    delta: "Personal best",
-    icon: Flame,
-    accent: "from-amber-500 to-rose-500",
-    detail: {
-      headline: "Longest consistency streak yet",
-      summary:
-        "You've completed at least one focused session every day for 12 days. Streaks beyond 14 days correlate with a 35% boost in retention.",
-      insights: [
-        "Risk window: Sunday evenings — schedule a 30-min review block",
-        "Reward in 2 days: unlock the 'Forge Two-Week' badge",
-        "Recovery tip: a 20-min light session still counts",
-      ],
-      seriesLabel: "Daily check-ins",
-      series: [
-        { d: "D1", v: 1 }, { d: "D3", v: 1 }, { d: "D5", v: 1 },
-        { d: "D7", v: 1 }, { d: "D9", v: 1 }, { d: "D11", v: 1 }, { d: "D12", v: 1 },
-      ],
-    },
-  },
-  {
-    label: "Focus score",
-    value: "92",
-    delta: "+6 vs last week",
-    icon: Target,
-    accent: "from-blue-500 to-cyan-500",
-    detail: {
-      headline: "Top decile of Forge users",
-      summary:
-        "Focus score blends session completion, distraction-free minutes, and break adherence. You're trending up sharply this week.",
-      insights: [
-        "Distraction-free ratio: 87% (target ≥ 80%)",
-        "Break adherence: 94% — you're respecting your Pomodoros",
-        "Suggested next step: try a 50/10 cycle for deep Calc work",
-      ],
-      seriesLabel: "Focus score per day",
-      series: [
-        { d: "Mon", v: 84 }, { d: "Tue", v: 88 }, { d: "Wed", v: 79 },
-        { d: "Thu", v: 95 }, { d: "Fri", v: 91 }, { d: "Sat", v: 96 }, { d: "Sun", v: 92 },
-      ],
-    },
-  },
-  {
-    label: "AI sessions completed",
-    value: "23 / 28",
-    delta: "82%",
-    icon: Brain,
-    accent: "from-violet-500 to-fuchsia-500",
-    detail: {
-      headline: "Strong adherence to the AI plan",
-      summary:
-        "Of the 28 study sessions Forge generated for you this week, you completed 23. Skipped sessions were mostly evening Linear Algebra blocks.",
-      insights: [
-        "Skipped pattern: Tue/Thu after 7pm — energy dips",
-        "Forge will rebalance LinAlg to morning slots next week",
-        "Completion >85% historically lifts grades by ~half a letter",
-      ],
-      seriesLabel: "Sessions completed",
-      series: [
-        { d: "Mon", v: 4 }, { d: "Tue", v: 3 }, { d: "Wed", v: 4 },
-        { d: "Thu", v: 3 }, { d: "Fri", v: 4 }, { d: "Sat", v: 3 }, { d: "Sun", v: 2 },
-      ],
-    },
-  },
-];
-
 export function StatsGrid() {
   const [open, setOpen] = useState<Stat | null>(null);
+  const { events, subjects } = useSchedule();
+  const stats = useScheduleStats(events, subjects);
+  const { streak, totalSessions } = useStreak();
+
+  const data: Stat[] = useMemo(() => {
+    const completionPct = stats.sessionsTotal > 0
+      ? Math.round((stats.completed / stats.sessionsTotal) * 100)
+      : 0;
+    const focusScore = totalSessions === 0
+      ? 0
+      : Math.min(100, Math.round((stats.consistency * 0.6) + (completionPct * 0.4)));
+
+    return [
+      {
+        label: "Study hours this week",
+        value: `${stats.totalStudyHours}h`,
+        delta: stats.totalStudyHours > 0 ? `${stats.todayHours}h today` : "Add a session",
+        icon: Clock,
+        accent: "from-indigo-500 to-purple-500",
+        detail: {
+          headline: stats.totalStudyHours > 0
+            ? `You've logged ${stats.totalStudyHours}h of focused work this week`
+            : "No study time logged yet",
+          summary: stats.totalStudyHours > 0
+            ? "Keep blocks short, frequent, and tied to a clear goal."
+            : "Start a focus session from the calendar to begin building your data.",
+          insights: [],
+          seriesLabel: "Hours per day",
+          series: stats.perDay.map((p) => ({ d: p.d, v: p.h })),
+        },
+      },
+      {
+        label: "Streak",
+        value: streak === 1 ? "1 day" : `${streak} days`,
+        delta: streak > 0 ? "Keep it alive" : "Start today",
+        icon: Flame,
+        accent: "from-amber-500 to-rose-500",
+        detail: {
+          headline: streak > 0 ? `${streak}-day streak` : "No streak yet",
+          summary: streak > 0
+            ? "A streak is consecutive days with at least one completed study session."
+            : "Complete one focus session today to start your streak.",
+          insights: [],
+          seriesLabel: "Daily activity",
+          series: stats.perDay.map((p) => ({ d: p.d, v: p.h > 0 ? 1 : 0 })),
+        },
+      },
+      {
+        label: "Focus score",
+        value: `${focusScore}`,
+        delta: focusScore > 0 ? `${stats.consistency}% consistency` : "—",
+        icon: Target,
+        accent: "from-blue-500 to-cyan-500",
+        detail: {
+          headline: focusScore > 0 ? "Composite of consistency + completion" : "Not enough data yet",
+          summary: "Focus score blends how often you study and how reliably you complete planned sessions.",
+          insights: [],
+          seriesLabel: "Hours per day",
+          series: stats.perDay.map((p) => ({ d: p.d, v: p.h })),
+        },
+      },
+      {
+        label: "Sessions completed",
+        value: stats.sessionsTotal === 0 ? "0" : `${stats.completed} / ${stats.sessionsTotal}`,
+        delta: stats.sessionsTotal === 0 ? "No sessions planned" : `${completionPct}%`,
+        icon: Brain,
+        accent: "from-violet-500 to-fuchsia-500",
+        detail: {
+          headline: stats.sessionsTotal === 0 ? "No planned sessions" : "Adherence to your plan",
+          summary: stats.sessionsTotal === 0
+            ? "Generate a study plan or add study blocks to track adherence."
+            : `You've completed ${stats.completed} of ${stats.sessionsTotal} planned sessions.`,
+          insights: [],
+          seriesLabel: "Hours per day",
+          series: stats.perDay.map((p) => ({ d: p.d, v: p.h })),
+        },
+      },
+    ];
+  }, [stats, streak, totalSessions]);
 
   return (
     <>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((s) => (
+        {data.map((s) => (
           <button
             key={s.label}
             type="button"
@@ -141,7 +122,7 @@ export function StatsGrid() {
               <div className={cn("h-9 w-9 rounded-lg bg-gradient-to-br grid place-items-center shadow-glow", s.accent)}>
                 <s.icon className="h-4 w-4 text-white" />
               </div>
-              <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+              <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
             </div>
             <div className="mt-4 text-2xl font-semibold font-display">{s.value}</div>
             <div className="text-xs text-muted-foreground">{s.label}</div>
@@ -186,24 +167,12 @@ export function StatsGrid() {
                       </defs>
                       <CartesianGrid stroke="oklch(1 0 0 / 0.06)" vertical={false} />
                       <XAxis dataKey="d" stroke="currentColor" fontSize={11} />
-                      <YAxis stroke="currentColor" fontSize={11} />
+                      <YAxis stroke="currentColor" fontSize={11} domain={[0, 'auto']} allowDataOverflow={false} />
                       <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, color: "var(--foreground)" }} />
                       <Area type="monotone" dataKey="v" stroke="oklch(0.74 0.19 295)" strokeWidth={2} fill="url(#statg)" />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
-              </div>
-
-              <div>
-                <div className="text-xs uppercase tracking-wide text-muted-foreground mb-2">AI insights</div>
-                <ul className="space-y-2">
-                  {open.detail.insights.map((i) => (
-                    <li key={i} className="text-sm flex gap-2">
-                      <span className="text-primary-glow">•</span>
-                      <span>{i}</span>
-                    </li>
-                  ))}
-                </ul>
               </div>
             </>
           )}

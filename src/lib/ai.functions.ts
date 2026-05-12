@@ -344,3 +344,71 @@ GUIDELINES:
     }
     return { reply: msg?.content ?? "I'm not sure how to help with that.", operations: [] };
   });
+
+// ===== AI Recommendations =====
+
+const RecsInput = z.object({
+  schedule: z.array(z.object({
+    title: z.string(),
+    type: z.string(),
+    day: z.number(),
+    start: z.number(),
+    end: z.number(),
+    subject: z.string().optional(),
+  })).max(80),
+});
+
+export const generateRecommendations = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => RecsInput.parse(d))
+  .handler(async ({ data }) => {
+    const dayName = (d: number) => ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][d] ?? "Mon";
+    const fmt = (m: number) => `${Math.floor(m / 60).toString().padStart(2, "0")}:${(m % 60).toString().padStart(2, "0")}`;
+    const snapshot = data.schedule.length === 0
+      ? "(empty calendar)"
+      : data.schedule.map((s) => `- ${dayName(s.day)} ${fmt(s.start)}-${fmt(s.end)} | ${s.type} | ${s.title}${s.subject ? ` (${s.subject})` : ""}`).join("\n");
+
+    const result = await callLovableAI({
+      model: "google/gemini-2.5-flash",
+      messages: [
+        {
+          role: "system",
+          content: `You are Forge, an academic coach. Look at the student's current weekly calendar and produce 3 short, specific, actionable recommendations to improve their study outcomes. Each rec has a 'title' (max 8 words) and 'desc' (1-2 sentences). If the calendar is empty, recommend onboarding actions. Always call the tool.
+
+CALENDAR:
+${snapshot}`,
+        },
+        { role: "user", content: "Give me 3 recommendations." },
+      ],
+      tools: [{
+        type: "function",
+        function: {
+          name: "save_recommendations",
+          description: "Save 3 personalized recommendations",
+          parameters: {
+            type: "object",
+            properties: {
+              recommendations: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    title: { type: "string" },
+                    desc: { type: "string" },
+                  },
+                  required: ["title", "desc"],
+                  additionalProperties: false,
+                },
+              },
+            },
+            required: ["recommendations"],
+            additionalProperties: false,
+          },
+        },
+      }],
+      tool_choice: { type: "function", function: { name: "save_recommendations" } },
+    });
+
+    const call = result?.choices?.[0]?.message?.tool_calls?.[0];
+    const args = call?.function?.arguments ? JSON.parse(call.function.arguments) : { recommendations: [] };
+    return args as { recommendations: Array<{ title: string; desc: string }> };
+  });

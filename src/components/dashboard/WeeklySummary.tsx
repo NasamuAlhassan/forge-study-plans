@@ -41,7 +41,7 @@ export function WeeklySummary(p: Props) {
             </defs>
             <CartesianGrid stroke="oklch(1 0 0 / 0.05)" vertical={false} />
             <XAxis dataKey="w" stroke="currentColor" fontSize={10} />
-            <YAxis stroke="currentColor" fontSize={10} />
+            <YAxis stroke="currentColor" fontSize={10} domain={[0, 'auto']} allowDataOverflow={false} />
             <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12 }} />
             <Area type="monotone" dataKey="h" stroke="oklch(0.74 0.19 295)" strokeWidth={2} fill="url(#ws)" />
           </AreaChart>
