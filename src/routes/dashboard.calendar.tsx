@@ -16,7 +16,8 @@ import {
 } from "@/hooks/use-schedule";
 import { useAuth } from "@/hooks/use-auth";
 import type { EventBlock } from "@/lib/demo-data";
-import { EVENTS, SUBJECTS } from "@/lib/demo-data";
+import { EmptyState } from "@/components/dashboard/EmptyState";
+import { CalendarPlus } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard/calendar")({
   component: CalendarPage,

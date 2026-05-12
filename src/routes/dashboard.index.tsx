@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { CalendarPlus } from "lucide-react";
 import { Topbar } from "@/components/dashboard/Topbar";
 import { StatsGrid } from "@/components/dashboard/StatsGrid";
 import { TodaysAgenda } from "@/components/dashboard/TodaysAgenda";
@@ -6,10 +7,10 @@ import { AIRecommendations } from "@/components/dashboard/AIRecommendations";
 import { UpcomingTasks } from "@/components/dashboard/UpcomingTasks";
 import { WeeklySummary } from "@/components/dashboard/WeeklySummary";
 import { BigCalendar } from "@/components/dashboard/BigCalendar";
+import { EmptyState } from "@/components/dashboard/EmptyState";
 import { useSchedule } from "@/hooks/use-schedule";
 import { useScheduleStats } from "@/hooks/use-schedule-stats";
 import { useAuth } from "@/hooks/use-auth";
-import { EVENTS, SUBJECTS } from "@/lib/demo-data";
 
 export const Route = createFileRoute("/dashboard/")({
   component: DashboardOverview,
@@ -19,10 +20,7 @@ function DashboardOverview() {
   const { user } = useAuth();
   const { events, subjects, hasData } = useSchedule();
   const name = (user?.user_metadata?.display_name as string) || user?.email?.split("@")[0] || "there";
-
-  const dEvents = hasData ? events : EVENTS;
-  const dSubjects = hasData ? subjects : SUBJECTS;
-  const stats = useScheduleStats(dEvents, dSubjects);
+  const stats = useScheduleStats(events, subjects);
 
   return (
     <>
@@ -40,14 +38,24 @@ function DashboardOverview() {
           trend={stats.trend}
         />
 
-        <div className="grid lg:grid-cols-[1.4fr_1fr] gap-6">
-          <BigCalendar events={dEvents} subjects={dSubjects} />
-          <div className="space-y-6">
-            <TodaysAgenda events={dEvents} subjects={dSubjects} />
-            <UpcomingTasks items={stats.upcoming} subjects={dSubjects} />
-            <AIRecommendations />
+        {hasData ? (
+          <div className="grid lg:grid-cols-[1.4fr_1fr] gap-6">
+            <BigCalendar events={events} subjects={subjects} />
+            <div className="space-y-6">
+              <TodaysAgenda events={events} subjects={subjects} />
+              <UpcomingTasks items={stats.upcoming} subjects={subjects} />
+              <AIRecommendations />
+            </div>
           </div>
-        </div>
+        ) : (
+          <EmptyState
+            icon={CalendarPlus}
+            title="Your calendar is empty"
+            description="Add your first class, study block, or import a timetable to get started."
+            ctaLabel="Open calendar"
+            ctaTo="/dashboard/calendar"
+          />
+        )}
       </main>
     </>
   );
