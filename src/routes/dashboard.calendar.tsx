@@ -28,9 +28,6 @@ function CalendarPage() {
   const { events, subjects, hasData, refetch } = useSchedule();
   const [editing, setEditing] = useState<EventBlock | null>(null);
 
-  const displayEvents = hasData ? events : EVENTS;
-  const displaySubjects = hasData ? subjects : SUBJECTS;
-
   const intensityFromNotes = (n?: string | null): EditableSession["intensity"] =>
     n === "deep" || n === "moderate" || n === "light" ? n : "moderate";
 
@@ -46,7 +43,7 @@ function CalendarPage() {
     : null;
 
   const handleChange = async (c: BigCalendarChange) => {
-    if (!hasData) return toast.info("Sample data — import or generate a plan to enable edits");
+    if (!hasData) return;
     try {
       await updateEvent(c.eventId, {
         day_of_week: c.day_of_week,
@@ -75,7 +72,7 @@ function CalendarPage() {
     <>
       <Topbar
         title="Calendar"
-        subtitle={hasData ? "Drag blocks to reschedule. Click to edit." : "Sample week — import or generate a plan to use your own."}
+        subtitle={hasData ? "Drag blocks to reschedule. Click to edit." : "Empty calendar — add an event or import a timetable to begin."}
       />
       <main className="p-4 sm:p-6 space-y-4">
         <div className="flex flex-wrap items-center justify-end gap-2">
@@ -106,12 +103,22 @@ function CalendarPage() {
           )}
         </div>
 
-        <BigCalendar
-          events={displayEvents}
-          subjects={displaySubjects}
-          onChange={handleChange}
-          onSelectEvent={(e) => hasData && setEditing(e)}
-        />
+        {hasData ? (
+          <BigCalendar
+            events={events}
+            subjects={subjects}
+            onChange={handleChange}
+            onSelectEvent={(e) => setEditing(e)}
+          />
+        ) : (
+          <EmptyState
+            icon={CalendarPlus}
+            title="No events yet"
+            description="Import a timetable, generate a study plan, or add events manually to fill your week."
+            ctaLabel="Import timetable"
+            ctaTo="/dashboard/import"
+          />
+        )}
       </main>
 
       <SessionEditDialog
