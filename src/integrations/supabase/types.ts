@@ -139,6 +139,42 @@ export type Database = {
         }
         Relationships: []
       }
+      study_sessions: {
+        Row: {
+          completed: boolean
+          created_at: string
+          duration_min: number
+          ended_at: string | null
+          event_id: string | null
+          id: string
+          started_at: string
+          subject_id: string | null
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          duration_min?: number
+          ended_at?: string | null
+          event_id?: string | null
+          id?: string
+          started_at?: string
+          subject_id?: string | null
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          duration_min?: number
+          ended_at?: string | null
+          event_id?: string | null
+          id?: string
+          started_at?: string
+          subject_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       subjects: {
         Row: {
           code: string | null
