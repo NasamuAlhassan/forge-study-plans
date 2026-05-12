@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { BarChart3 } from "lucide-react";
 import { Topbar } from "@/components/dashboard/Topbar";
 import { StatsGrid } from "@/components/dashboard/StatsGrid";
+import { EmptyState } from "@/components/dashboard/EmptyState";
 import { useSchedule } from "@/hooks/use-schedule";
 import { useScheduleStats } from "@/hooks/use-schedule-stats";
-import { EVENTS, SUBJECTS } from "@/lib/demo-data";
 import {
   Area, AreaChart, Bar, BarChart, CartesianGrid, Cell,
   Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
@@ -21,9 +22,15 @@ const PIE_COLORS = [
 
 function AnalyticsPage() {
   const { events, subjects, hasData } = useSchedule();
-  const dEvents = hasData ? events : EVENTS;
-  const dSubjects = hasData ? subjects : SUBJECTS;
-  const stats = useScheduleStats(dEvents, dSubjects);
+  const stats = useScheduleStats(events, subjects);
+
+  // Course placeholders: always show one card per subject, even with 0 hours
+  const subjectCards = subjects.length > 0
+    ? subjects.map((s) => {
+        const hit = stats.perSubject.find((p) => p.s === s.name);
+        return { s: s.name, h: hit?.h ?? 0 };
+      })
+    : stats.perSubject;
 
   const consistencyData = stats.perDay.map((d) => ({
     d: d.d, consistent: d.h >= 1 ? 1 : 0, hours: d.h,
