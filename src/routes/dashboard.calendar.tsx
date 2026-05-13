@@ -120,7 +120,7 @@ function CalendarPage() {
             title="No events yet"
             description="Add an event manually, import a timetable, or generate a study plan to fill your week."
             ctaLabel="Add your first event"
-            onCtaClick={() => setAdding(true)}
+            onCta={() => setAdding(true)}
           />
         )}
       </main>
