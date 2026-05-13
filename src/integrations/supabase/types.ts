@@ -77,6 +77,7 @@ export type Database = {
           display_name: string | null
           id: string
           major: string | null
+          onboarded_at: string | null
           study_preferences: Json | null
           university: string | null
           updated_at: string
@@ -88,6 +89,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           major?: string | null
+          onboarded_at?: string | null
           study_preferences?: Json | null
           university?: string | null
           updated_at?: string
@@ -99,6 +101,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           major?: string | null
+          onboarded_at?: string | null
           study_preferences?: Json | null
           university?: string | null
           updated_at?: string
@@ -181,6 +184,7 @@ export type Database = {
           color: string
           created_at: string
           credit_hours: number | null
+          difficulty: string | null
           id: string
           instructor: string | null
           name: string
@@ -192,6 +196,7 @@ export type Database = {
           color?: string
           created_at?: string
           credit_hours?: number | null
+          difficulty?: string | null
           id?: string
           instructor?: string | null
           name: string
@@ -203,6 +208,7 @@ export type Database = {
           color?: string
           created_at?: string
           credit_hours?: number | null
+          difficulty?: string | null
           id?: string
           instructor?: string | null
           name?: string
