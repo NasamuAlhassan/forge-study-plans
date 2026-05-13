@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu, LayoutDashboard, CalendarRange, Brain, Upload, Mic, BarChart3, Sparkles, MessageSquare } from "lucide-react";
+import { Menu, LayoutDashboard, CalendarRange, Brain, Upload, Mic, BarChart3, Sparkles, MessageSquare, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
@@ -13,6 +13,7 @@ const items = [
   { to: "/dashboard/import", label: "Import timetable", icon: Upload },
   { to: "/dashboard/voice", label: "Voice scheduling", icon: Mic },
   { to: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
+  { to: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
 export function MobileNav() {

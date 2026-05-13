@@ -8,7 +8,6 @@ import {
   BarChart3,
   Settings,
   Sparkles,
-  Flame,
   MessageSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -21,6 +20,7 @@ const items = [
   { to: "/dashboard/import", label: "Import timetable", icon: Upload },
   { to: "/dashboard/voice", label: "Voice scheduling", icon: Mic },
   { to: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
+  { to: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
 export function DashboardSidebar() {
@@ -57,18 +57,9 @@ export function DashboardSidebar() {
       </nav>
 
       <div className="p-3 border-t border-white/5">
-        <div className="ring-gradient glass rounded-xl p-4">
-          <div className="flex items-center gap-2 text-sm font-medium">
-            <Flame className="h-4 w-4 text-amber-400" />
-            12-day streak
-          </div>
-          <p className="mt-1 text-xs text-muted-foreground">
-            You're on fire. Keep your momentum going.
-          </p>
-        </div>
         <Link
-          to="/dashboard"
-          className="mt-2 flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-white/5"
+          to="/dashboard/settings"
+          className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-white/5"
         >
           <Settings className="h-4 w-4" />
           Settings
