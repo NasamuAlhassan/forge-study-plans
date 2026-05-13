@@ -77,6 +77,9 @@ function CalendarPage() {
       />
       <main className="p-4 sm:p-6 space-y-4">
         <div className="flex flex-wrap items-center justify-end gap-2">
+          <Button size="sm" onClick={() => setAdding(true)}>
+            <Plus className="h-4 w-4 mr-1" /> Add event
+          </Button>
           {hasData && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -115,12 +118,20 @@ function CalendarPage() {
           <EmptyState
             icon={CalendarPlus}
             title="No events yet"
-            description="Import a timetable, generate a study plan, or add events manually to fill your week."
-            ctaLabel="Import timetable"
-            ctaTo="/dashboard/import"
+            description="Add an event manually, import a timetable, or generate a study plan to fill your week."
+            ctaLabel="Add your first event"
+            onCtaClick={() => setAdding(true)}
           />
         )}
       </main>
+
+      <AddEventDialog
+        open={adding}
+        onOpenChange={setAdding}
+        subjects={subjects}
+        events={events}
+        onSaved={refetch}
+      />
 
       <SessionEditDialog
         open={!!editing}
