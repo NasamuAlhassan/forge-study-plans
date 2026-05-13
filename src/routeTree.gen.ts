@@ -9,17 +9,24 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardVoiceRouteImport } from './routes/dashboard.voice'
 import { Route as DashboardStudyPlanRouteImport } from './routes/dashboard.study-plan'
+import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
 import { Route as DashboardImportRouteImport } from './routes/dashboard.import'
 import { Route as DashboardCalendarRouteImport } from './routes/dashboard.calendar'
 import { Route as DashboardAskRouteImport } from './routes/dashboard.ask'
 import { Route as DashboardAnalyticsRouteImport } from './routes/dashboard.analytics'
 
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -50,6 +57,11 @@ const DashboardStudyPlanRoute = DashboardStudyPlanRouteImport.update({
   path: '/study-plan',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardImportRoute = DashboardImportRouteImport.update({
   id: '/import',
   path: '/import',
@@ -75,10 +87,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
+  '/onboarding': typeof OnboardingRoute
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
   '/dashboard/ask': typeof DashboardAskRoute
   '/dashboard/calendar': typeof DashboardCalendarRoute
   '/dashboard/import': typeof DashboardImportRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/study-plan': typeof DashboardStudyPlanRoute
   '/dashboard/voice': typeof DashboardVoiceRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -86,10 +100,12 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/onboarding': typeof OnboardingRoute
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
   '/dashboard/ask': typeof DashboardAskRoute
   '/dashboard/calendar': typeof DashboardCalendarRoute
   '/dashboard/import': typeof DashboardImportRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/study-plan': typeof DashboardStudyPlanRoute
   '/dashboard/voice': typeof DashboardVoiceRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -99,10 +115,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
+  '/onboarding': typeof OnboardingRoute
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
   '/dashboard/ask': typeof DashboardAskRoute
   '/dashboard/calendar': typeof DashboardCalendarRoute
   '/dashboard/import': typeof DashboardImportRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/study-plan': typeof DashboardStudyPlanRoute
   '/dashboard/voice': typeof DashboardVoiceRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -113,10 +131,12 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/login'
+    | '/onboarding'
     | '/dashboard/analytics'
     | '/dashboard/ask'
     | '/dashboard/calendar'
     | '/dashboard/import'
+    | '/dashboard/settings'
     | '/dashboard/study-plan'
     | '/dashboard/voice'
     | '/dashboard/'
@@ -124,10 +144,12 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/onboarding'
     | '/dashboard/analytics'
     | '/dashboard/ask'
     | '/dashboard/calendar'
     | '/dashboard/import'
+    | '/dashboard/settings'
     | '/dashboard/study-plan'
     | '/dashboard/voice'
     | '/dashboard'
@@ -136,10 +158,12 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/login'
+    | '/onboarding'
     | '/dashboard/analytics'
     | '/dashboard/ask'
     | '/dashboard/calendar'
     | '/dashboard/import'
+    | '/dashboard/settings'
     | '/dashboard/study-plan'
     | '/dashboard/voice'
     | '/dashboard/'
@@ -149,10 +173,18 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   LoginRoute: typeof LoginRoute
+  OnboardingRoute: typeof OnboardingRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -195,6 +227,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardStudyPlanRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/settings': {
+      id: '/dashboard/settings'
+      path: '/settings'
+      fullPath: '/dashboard/settings'
+      preLoaderRoute: typeof DashboardSettingsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/import': {
       id: '/dashboard/import'
       path: '/import'
@@ -231,6 +270,7 @@ interface DashboardRouteChildren {
   DashboardAskRoute: typeof DashboardAskRoute
   DashboardCalendarRoute: typeof DashboardCalendarRoute
   DashboardImportRoute: typeof DashboardImportRoute
+  DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardStudyPlanRoute: typeof DashboardStudyPlanRoute
   DashboardVoiceRoute: typeof DashboardVoiceRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
@@ -241,6 +281,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardAskRoute: DashboardAskRoute,
   DashboardCalendarRoute: DashboardCalendarRoute,
   DashboardImportRoute: DashboardImportRoute,
+  DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardStudyPlanRoute: DashboardStudyPlanRoute,
   DashboardVoiceRoute: DashboardVoiceRoute,
   DashboardIndexRoute: DashboardIndexRoute,
@@ -254,7 +295,18 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRouteWithChildren,
   LoginRoute: LoginRoute,
+  OnboardingRoute: OnboardingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
