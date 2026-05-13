@@ -4,8 +4,9 @@ import { toast } from "sonner";
 import { Topbar } from "@/components/dashboard/Topbar";
 import { BigCalendar, type BigCalendarChange } from "@/components/dashboard/BigCalendar";
 import { SessionEditDialog, type EditableSession } from "@/components/dashboard/SessionEditDialog";
+import { AddEventDialog } from "@/components/dashboard/AddEventDialog";
 import { Button } from "@/components/ui/button";
-import { Trash2, AlertTriangle } from "lucide-react";
+import { Trash2, AlertTriangle, Plus, CalendarPlus } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
@@ -17,7 +18,6 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import type { EventBlock } from "@/lib/demo-data";
 import { EmptyState } from "@/components/dashboard/EmptyState";
-import { CalendarPlus } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard/calendar")({
   component: CalendarPage,
@@ -27,6 +27,7 @@ function CalendarPage() {
   const { user } = useAuth();
   const { events, subjects, hasData, refetch } = useSchedule();
   const [editing, setEditing] = useState<EventBlock | null>(null);
+  const [adding, setAdding] = useState(false);
 
   const intensityFromNotes = (n?: string | null): EditableSession["intensity"] =>
     n === "deep" || n === "moderate" || n === "light" ? n : "moderate";
