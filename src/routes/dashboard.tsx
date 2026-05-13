@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
 import { Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard")({
