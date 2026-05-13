@@ -8,7 +8,6 @@ import {
   BarChart3,
   Settings,
   Sparkles,
-  Flame,
   MessageSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
